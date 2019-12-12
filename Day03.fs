@@ -56,3 +56,59 @@ let Part1 =
 
     let closestIntersection = findShortestIntersection(grid) 
     printfn "%d" closestIntersection
+
+
+let Part2 = 
+    // Grid: Map(<x,y>, Set<segmentId, walkingDistance>)
+    let mutable grid: Map<int*int, Set<int*int>> = Map.empty
+
+    let traceWire (segments) =
+        let (segs: string[], id: int) = segments
+
+        let mutable currCoord = (0, 0)
+        let mutable steps = 0
+
+        let alreadyCrossed(set, id) =
+            Seq.exists (fun e -> fst(e) = id) set
+
+        let doTraceSegment(dir: int * int, numSteps) =
+            for _ in 1..numSteps do
+                steps <- steps + 1
+                currCoord <- sumTuple(currCoord, dir)
+                // Prevents "double counting"
+                if grid.ContainsKey(currCoord) then
+                    if not (alreadyCrossed(grid.TryFind(currCoord).Value, id)) then
+                        grid <- grid.Add(currCoord, grid.TryFind(currCoord).Value.Add(id, steps))
+                else
+                    grid <- grid.Add(currCoord, Set.empty.Add(id, steps))
+
+        let traceSegment(seg: string) = 
+            match seg.[0] with
+            | 'U' -> doTraceSegment(( 0,  1), seg.[1..] |> int)
+            | 'D' -> doTraceSegment(( 0, -1), seg.[1..] |> int)
+            | 'L' -> doTraceSegment((-1,  0), seg.[1..] |> int)
+            | 'R' -> doTraceSegment(( 1,  0), seg.[1..] |> int)
+            | _ -> failwith "UNRECOGNIZED VALUE"
+
+        Array.iter traceSegment segs
+
+    input |> Array.map (fun s -> s.Split ',') |> Array.mapi (fun id s -> (s, id)) |> Array.iter traceWire |> ignore
+
+
+    // Having to define the types for these means I'm probably doing something wrong...
+    let findShortestIntersection(inputGrid: Map<int*int, Set<int*int>>) =
+        let absSumTuple(tup) = 
+            let (t1, t2) = tup
+            abs(t1) + abs(t2)
+
+        let getDistance(kvp: KeyValuePair<int*int,Set<int*int>>) = 
+            kvp.Value |> Seq.sumBy absSumTuple
+
+        let shortestIntersection = inputGrid |> Map.filter (fun _ v -> v.Count > 1)  // Find intersections
+                                        // |> Map.filter (fun k _-> (k |> absSumTuple) = 0)  // Filter out origin if needed
+                                        |> Seq.minBy getDistance
+                                        |> getDistance
+        shortestIntersection
+
+    let closestIntersection = findShortestIntersection(grid) 
+    printfn "%d" closestIntersection
