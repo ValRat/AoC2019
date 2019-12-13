@@ -1,7 +1,8 @@
 ﻿
 [<EntryPoint>]
 let main argv =
-    Day04.Part2 |> ignore
+    Day06.Part1
+    // Day04.Part2 |> ignore
     // Day03.Part2 |> ignore
     // Day03.Part1 |> ignore
     // Day01.Part1
