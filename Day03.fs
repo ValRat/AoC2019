@@ -3,7 +3,7 @@ module Day03
 open System.IO
 open System.Collections.Generic
 
-let input = File.ReadAllLines(@"./inputs/3.txt")
+let input = File.ReadAllLines(@"./inputs/3test.txt")
 
 let sumTuple(a: int * int, b: int * int) =
     let a1, a2 = a
@@ -56,6 +56,7 @@ let Part1 =
 
     let closestIntersection = findShortestIntersection(grid) 
     printfn "%d" closestIntersection
+    0
 
 
 let Part2 = 
@@ -73,14 +74,14 @@ let Part2 =
 
         let doTraceSegment(dir: int * int, numSteps) =
             for _ in 1..numSteps do
-                steps <- steps + 1
                 currCoord <- sumTuple(currCoord, dir)
+                steps <- steps + 1
                 // Prevents "double counting"
                 if grid.ContainsKey(currCoord) then
                     if not (alreadyCrossed(grid.TryFind(currCoord).Value, id)) then
-                        grid <- grid.Add(currCoord, grid.TryFind(currCoord).Value.Add(id, steps))
+                        grid <- grid.Add(currCoord, grid.TryFind(currCoord).Value.Add((id, steps)))
                 else
-                    grid <- grid.Add(currCoord, Set.empty.Add(id, steps))
+                    grid <- grid.Add(currCoord, Set.empty.Add((id, steps)))
 
         let traceSegment(seg: string) = 
             match seg.[0] with
@@ -110,5 +111,6 @@ let Part2 =
                                         |> getDistance
         shortestIntersection
 
-    let closestIntersection = findShortestIntersection(grid) 
+    let closestIntersection = findShortestIntersection(grid) - 1 // Off by one ? 
     printfn "%d" closestIntersection
+    0
