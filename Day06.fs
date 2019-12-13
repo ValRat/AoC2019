@@ -5,21 +5,14 @@ open System.IO
 
 // TODO: Make a graph?
 // dynamic programming?, no data structure?
-
 let input = File.ReadAllLines(@".\inputs\6.txt")
-
 
 // In case I need this...
 let initChildParentMap: Map<string, string> =
-    let mutable tmpMap = Map.empty
-    
     let getParentChild (x:string) = 
         let elts = x.Split(')') |> Seq.take 2 |> Seq.toList
         (elts.[1], elts.[0])
-
-    input |> Seq.iter (fun x -> let (child, parent) = getParentChild x
-                                tmpMap <- tmpMap.Add(child, parent) )
-    tmpMap
+    input |> Array.map getParentChild |> Map.ofArray
 
 let createOrbitLengthMap (childParentMap: Map<string,string>) : Map<string, int> =
     let mutable tmpMap = Map.empty
@@ -60,7 +53,7 @@ let Part2 =
         let mutable currObj = obj
         while currObj <> "COM" do
             path <- List.append path [currObj]
-            currObj <- childParent.TryFind(currObj).Value
+            currObj <- childParent.TryFind(currObj).Value 
         path
         
     let myPathToCom = findOrbitalPathToCom("YOU")
